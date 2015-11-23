@@ -1,0 +1,75 @@
+Préambule (pour positionner votre environnement à l'ENSTA) :
+------------------------------------------------------------
+
+Environnement pour la ro
+(Ceci n'est utile que si votre code c++ utilise certaines bibliothèque telles que cplex, ...)
+
+    use diam
+    usediam ro
+
+Exemples d'utilisation de cmake et de make
+------------------------------------------
+
+    # Création d'un répertoire de travail
+    mkdir build
+    cd build
+
+    # génère un ensemble de Makefiles avec gestion de dépendances
+    cmake ..
+
+    # compile, link et génère l'exécutable "run" dans le répertoire build
+    make
+
+    # exécution du programme et afficher l'aide d'utilisation du programme
+    ./run -h
+    # affichage d'un petit exemple exploitant les options
+    ./run -H
+
+    # Quelques exemples
+    ./run  -s 2 ../data/v0.dat
+    ./run  --stupid ../data/v0.dat
+       lit et résoud une instance avec le solver StupidSolver
+       avec affichage standard d'informations (par -L 2)
+       la solution est affiché sur la sortie standard et enregistrée
+       dans un fichier sous la forme vN-D-LLL.sol (e.g. v0-4-406.sol)
+    ./run  -s 2 ../data/v0.dat -L 5
+       même chose mais affiche plus d'informations (par -L 5)
+
+    ./run  -s 3 ../data/v0.dat
+    ./run  --carlo ../data/v0.dat
+       Méthod de monte carlo appliquée à l'instance v0
+    ./run  --carlo ../data/v0.dat -N 5000
+       Même chose en 1000 itération 5000 itérations
+       (trouve l'optimum pour v0 avec les briques d'équilibrage et d'insertion correctes)
+
+    ./run  --glouton ../data/v0.dat
+       Méthode glouton (intelligent) **À FAIRE**
+
+    ./run  --recuit ../data/v0.dat
+       Méthode de recuit simulé **À FAIRE**
+
+    make
+    => recompile le minimum nécessaire
+
+    make clean
+    => supprime les fichiers générés par la commande `make`
+
+    make distclean
+    make cc
+    => supprime tout ce qui est généré (i.e. tout ce qui est dans build)
+       Il faut alors relancer la commande cmake (voir ci-dessus)
+
+    make tbz
+    make txz
+    # make zip (pas dispo)
+    => crée une archive datée **à coté** du répertoire du projet
+       (pour sauvegarde ou pour rendre à l'encadrement)
+
+    Pour décompresser une de ces archives, vous devez
+    - vous positionner dans le répertoire contenant cette archive
+    - taper les commandes suivantes
+      tar -xjf myproject-2013xxxx.tbz
+    - et renommer le répertoire décompressé avant de le modifier
+      mv myproject-2013xxxx myproject
+
+# MD ./

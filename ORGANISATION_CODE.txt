@@ -1,0 +1,93 @@
+Organisation du prototype de projet velib
+
+
+## Voici l'organisation globale de l'application :
+
+- le main.cpp doit rester simple et lisible et permet de comprendre ce que fait
+  l'application (à lire en premier).
+  En fonction des options, il crée exécute et exploite différents solveurs.
+- la classe Instance regroupe tout ce qui concerne l'instance (aucune intelligence).
+  Elle crée et manipule des collections d'objets Station et Remorque (qui sont
+  des filles de Site) et des objet Arc.
+- les différents solveurs (e.g. StupidSolver, GreedySolver, AnnealingSolver, ...)
+  reçoivent tous un objet "inst" (de classe Instance) à la construction, ils
+  fournissent tous une méthode solve() plus ou moins intelligente, et qui fait
+  le travail proprement dit.
+  Le résultat d'un solve() est mis à disposition de l'appelant qui est généralement
+  la fonction main(). Ce résultat est principalement la meilleure solution trouvée,
+  mais qui pourrait être également une liste de triplets de valeurs
+     "iteration, desequilibre, distance"
+  utilisables après traitement à des fins de statistique pour le déboguage ou
+  pour le rapport.
+- La classe Solution encapsule tout ce qui est nécessaire et suffisant pour
+  décrire une solution complète. Elle est composée entre autre de n objets de
+  classe Circuit.
+- Chaque Circuit représente une tournée réalisée pour une remorque donnée.
+- Les objets Solution et Circuit sont manipulés par les différents Solver
+  (insertion ou déplacement d'une station au sein d'un circuit ou entre circuits
+  au sein d'une solution). Ces objets dédiés à la représentation d'une solution
+  n'ont pas vocation à être intelligent car il doivent restés indépendants (et
+  être manipulés par) des objets de classe Solver de nature complétement
+  différentes.
+  Cependant certaines fonctionalités bien identifiées, communes à la majorité des
+  Solver peuvent être factorisées sous forme de méthodes de la classe Solution.
+  C'est le cas pour les méthodes Circuit.equilibrate() ou Circuit.update()
+  cette dernière étant appelée par la méthode Solution.update().
+
+D'autre fichiers existent qui sont indépendants de l'application velib mais en
+allège le codage. Par exemple :
+
+- util.hpp contient la classe U et propose diverses méthodes statiques
+  (U::read_lines(filneme), U.to_s(nimporte_quoi), ...)
+- la classe Logger propose des méthodes pour un affichage conditionné par la valeur
+  d'un paramètre. Voir les exemples dans les solveurs les appels à log3(""),
+  log3n(""), if (log3()) {...}, ...
+- optionParser.hpp est un fichier complétement générique pour analyser les
+  options de la ligne de commande.
+- option.hpp exploite optionParser.hpp pour définir les options de ce projet
+  particulier.
+  Vous pourrez compléter ce fichier en fonction de vos besoins pour définir par
+  exemple la vitesse de décroissance de la tempérure dans votre recuit (e.g
+  par un nouvelle option "--alpha xxx" alias "-a xxx").
+
+## Quelques conseils pour comprendre l'application
+
+Commencer par lire le fichier LISEZ_MOI_ELEVE.txt pour compiler et exécuter le
+code. Tester les exemples proposés pour en comprendre l'utilité.
+
+Vous pouvez alors continuer par :
+- lire le fichier main.cpp,
+- lire la classe StupidSolver,
+- puis lire et étudier la classe CarloSolver,
+- et enfin regarder les classes Instance (avec Site, Station et Remorque)
+  puis Solution et enfin Circuit.
+
+## Conseils pour le développement
+
+Si vous souhaitez compléter le proto fourni plutôt que de simplement vous en
+inspirer, vous aurez intérêt à le comprendre suffisamment pour vous
+l'approprier avant de le modifier (mais inutile de rentrer dans le détail du
+fichier optionParser.hpp par exemple !).
+
+Vous devrez également être efficace pour valider un cycle de développement
+complet "modif + test + archivage" et garantir que le code reste toujours
+fonctionnel et pouvoir revenir à une version antérieure en cas de problème.
+L'idée est que si vous souhaitez effectuer une archive (soit pour sauvegarde,
+soit pour l'échanger avec votre trinôme) vous n'ayez qu'une simple commande à
+effectuer.
+
+Essayez de maintenir une convention de codage relativement cohérente, garantissant
+la maintenabilité du code au sein du groupe.
+Dans votre cas il s'agit essentiellement de maintenir le code bien présenté
+et de réfléchir pour chaque fonction crée à son nom et à sa signature.
+
+Voici quelques conventions utilisée pour les noms de variables locales dans ce :
+
+    Instance => inst
+    Solution => sol, sol1, sol2, best_sol, cur_sol, ...
+    Solver => solver
+    Site ou Station => s, s1 s2
+    Remorque => r, r1, r2
+
+./
+
