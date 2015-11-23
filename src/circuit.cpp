@@ -100,6 +100,8 @@ void Circuit::equilibrate() {
     // - on part avec une remorque vide,
     // - rien n'est déposé en chaque station,
     // - on déduire les déséquibres par station !
+    int deposed = 0;
+    int sum_deposed = 0;
     for (auto it = this->stations->begin(); it != this->stations->end(); ++it) {
         Station* station = *it;
         logn7(station->to_s_long());
@@ -109,16 +111,26 @@ void Circuit::equilibrate() {
         // Deux solutions pour ajouter un élément dans un pointeur de map, mais
         // aucune n'est élégante !
         //  this->depots->insert(std::pair<Station*,int>(station,0));
-        (*this->depots)[station] = 0;
+        //  WARNING : TO CODE, IF MAX CAPACITY definit negatif
+        if (this->charge_init - sum_deposed >= station->deficit()) {
+            deposed = station->deficit();
+            (*this->depots)[station] = deposed;
+            sum_deposed += deposed;
+        }
+        else {
+            deposed = this->charge_init - sum_deposed;
+            (*this->depots)[station] = deposed;
+            sum_deposed = this->charge_init;
+        }
 
         // le nouveau contenu de la remorque reste donc inchangé
         logn7("Circuit::equilibrate: avant maj charges");
         // this->charges->insert(std::pair<Station*,int>(station,this->charge_init));
-        (*this->charges)[station] = this->charge_init;
+        (*this->charges)[station] = this->charge_init - sum_deposed;
 
         // incrémentation du desequilibre du circuit
         logn7("Circuit::equilibrate: avant maj desequilibre");
-        this->desequilibre += abs(station->deficit());
+        this->desequilibre += abs(station->deficit()-deposed);
     }
     // Calcul savant de la charge initiale de la remorque pour garantir les
     // dépots et retraits qui viennent d'être calculé
