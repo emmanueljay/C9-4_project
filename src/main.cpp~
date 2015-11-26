@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
     Options::args =  new Options(argc, argv);
     Options* args = Options::args;
 
-//test git
+
     // Exemple d'affichage de quelques options
     cout << "args->solver=" << args->solver << endl;
     cout << "args->seed=" << args->seed << endl;
