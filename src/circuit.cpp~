@@ -100,8 +100,8 @@ void Circuit::equilibrate() {
     // - on part avec une remorque vide,
     // - rien n'est déposé en chaque station,
     // - on déduire les déséquibres par station !
-    int sum_depots=0;
-    int sum_charges=this->charge_init;
+    int deposed = 0;
+    int sum_deposed = 0;
     for (auto it = this->stations->begin(); it != this->stations->end(); ++it) {
         Station* station = *it;
         logn7(station->to_s_long());
@@ -111,57 +111,29 @@ void Circuit::equilibrate() {
         // Deux solutions pour ajouter un élément dans un pointeur de map, mais
         // aucune n'est élégante !
         //  this->depots->insert(std::pair<Station*,int>(station,0));
-
-        //(*this->depots)[station] = 0;
-        if((station->deficit()>0) && ( (this->charge_init-sum_depots)<=station->deficit()))
-        {
-        (*this->depots)[station] = (this->charge_init-sum_depots);
-        sum_depots+=charge_init;
+        //  WARNING : TO CODE, IF MAX CAPACITY definit negatif
+        if (this->charge_init - sum_deposed >= station->deficit()) {
+            deposed = station->deficit();
+            (*this->depots)[station] = deposed;
+            sum_deposed += deposed;
         }
-        else if ((station->deficit()>0) && ( (this->charge_init-sum_depots)>station->deficit()))
-        {
-          (*this->depots)[station] = station->deficit();
-        sum_depots+=station->deficit();
+        else {
+            deposed = this->charge_init - sum_deposed;
+            (*this->depots)[station] = deposed;
+            sum_deposed = this->charge_init;
         }
-        else if((station->deficit()==0)
-        {
-        (*this->depots)[station]=0;
-        }
-
 
         // le nouveau contenu de la remorque reste donc inchangé
         logn7("Circuit::equilibrate: avant maj charges");
         // this->charges->insert(std::pair<Station*,int>(station,this->charge_init));
-       if(station->deficit()>=0){
-      (*this->charges)[station] = this->charge_init - sum_depots;}
-      //le cas ou il ya un plus de velo dans la stations donc la charge de remorque va augmanter
-      if (station->deficit()<0) && (-(station->deficit()+sum_charges-sum_depots <= remorque->capa)
-      {
-        sum_charges+= -(station->deficit());
-
-       (*this->charges)[station] = this->charge_init +sum_charges -sum_depots;}
-       else if (-(station->deficit()+this->charges_init -sum_depots > remorque->capa)
-       {sum_charges+=-station->deficit()-(remorque->capa-(this->charges_init -sum_depots));
-
-
-       (*this->charges)[station] = remorque->capa ;}
-
-
-
+        (*this->charges)[station] = this->charge_init - sum_deposed;
 
         // incrémentation du desequilibre du circuit
         logn7("Circuit::equilibrate: avant maj desequilibre");
-        if (station->deficit()>=0)
-        {
-        this->desequilibre += abs(station->deficit())-sum_depots;
-        }
-        else if (station->deficit()<0)
-        {
-         this->desequilibre += abs(station->deficit())-sum_charges+sum_depots;
-        }
+        this->desequilibre += abs(station->deficit()-deposed);
     }
     // Calcul savant de la charge initiale de la remorque pour garantir les
-    // dépots et retraits qui viennent d'ê
+    // dépots et retraits qui viennent d'être calculé
     this->charge_init = 0; // même si c'est déjà fait par ailleurs !
     logn6("Circuit::equilibrate END");
 }
