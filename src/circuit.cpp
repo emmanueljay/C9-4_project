@@ -116,7 +116,7 @@ void Circuit::equilibrate() {
         if((station->deficit()>0) && ( (this->charge_init-sum_depots)<=station->deficit()))
         {
         (*this->depots)[station] = (this->charge_init-sum_depots);
-        sum_depots+=charge_init;
+        sum_depots+=charge_init; //c'est pas plutot egal ici ?????????????
         }
         else if ((station->deficit()>0) && ( (this->charge_init-sum_depots)>station->deficit()))
         {
@@ -127,7 +127,7 @@ void Circuit::equilibrate() {
         {
         (*this->depots)[station]=0;
         }
-
+        //deficit negatif on a pas un depot negatif ???????????
 
         // le nouveau contenu de la remorque reste donc inchangé
         logn7("Circuit::equilibrate: avant maj charges");
