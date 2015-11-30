@@ -111,17 +111,19 @@ void Circuit::equilibrate() {
         // Deux solutions pour ajouter un élément dans un pointeur de map, mais
         // aucune n'est élégante !
         //  this->depots->insert(std::pair<Station*,int>(station,0));
-        //  WARNING : TO CODE, IF MAX CAPACITY definit negatif
-        if (this->charge_init - sum_deposed >= station->deficit()) {
-            deposed = station->deficit();
-            (*this->depots)[station] = deposed;
-            sum_deposed += deposed;
-        }
-        else {
+
+        // Si on doit récupèrer trop de vélo        
+        if ( station->deficit() < this->charge_init - sum_deposed - remorque->capa())
+            deposed = this->charge_init - sum_deposed - remorque->capa();
+        // Si on doit poser trop de vélo
+        else if (this->charge_init - sum_deposed < station->deficit()) 
             deposed = this->charge_init - sum_deposed;
-            (*this->depots)[station] = deposed;
-            sum_deposed = this->charge_init;
-        }
+        // Sinon
+        else 
+            deposed = station->deficit();
+        
+        (*this->depots)[station] = deposed;
+        sum_deposed += deposed;
 
         // le nouveau contenu de la remorque reste donc inchangé
         logn7("Circuit::equilibrate: avant maj charges");
