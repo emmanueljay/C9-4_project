@@ -113,8 +113,8 @@ void Circuit::equilibrate() {
         //  this->depots->insert(std::pair<Station*,int>(station,0));
 
         // Si on doit récupèrer trop de vélo        
-        if ( station->deficit() < this->charge_init - sum_deposed - remorque->capa())
-            deposed = this->charge_init - sum_deposed - remorque->capa();
+        if ( station->deficit() < this->charge_init - sum_deposed - remorque->capa)
+            deposed = this->charge_init - sum_deposed - remorque->capa;
         // Si on doit poser trop de vélo
         else if (this->charge_init - sum_deposed < station->deficit()) 
             deposed = this->charge_init - sum_deposed;
