@@ -100,6 +100,33 @@ void Circuit::equilibrate() {
     // - on part avec une remorque vide,
     // - rien n'est déposé en chaque station,
     // - on déduire les déséquibres par station !
+
+    // Calcul de la charge init
+    int charge_min = 0 ;
+    int charge_max = remorque->capa ;
+    int charge = 0;
+
+    for (auto it = this->stations->begin(); it != this->stations->end(); ++it) {
+        Station* station = *it;
+        charge += station->deficit();
+
+        if (charge > charge_min){
+            charge_min = charge;
+            if (charge_min >= charge_max){
+                charge_init = charge_max ;
+                break;
+            }
+        }
+
+        if (charge < charge_max - remorque->capa){
+            charge_max = remorque->capa + charge;
+            if (charge_min >= charge_max){
+                charge_init = charge_min ;
+                break;
+            }
+        }
+    }
+
     int deposed = 0;
     int sum_deposed = 0;
     for (auto it = this->stations->begin(); it != this->stations->end(); ++it) {
@@ -136,7 +163,7 @@ void Circuit::equilibrate() {
     }
     // Calcul savant de la charge initiale de la remorque pour garantir les
     // dépots et retraits qui viennent d'être calculé
-    this->charge_init = 0; // même si c'est déjà fait par ailleurs !
+    // this->charge_init = 0; // même si c'est déjà fait par ailleurs !
     logn6("Circuit::equilibrate END");
 }
 
