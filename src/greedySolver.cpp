@@ -1,21 +1,47 @@
 #include "solver.hpp"
 
+#include <algorithm>
 
 GreedySolver::GreedySolver(Instance* inst) : Solver::Solver(inst) {
-    name = "GreedySolver";
-    desc = "Solver par méthode glouton (intelligent)";
-    cerr << "\nGreedySolver non implémenté : AU BOULOT !" << endl;
-    logn1(name + ": " + desc + " inst: " + inst->name);
-    exit(1);
+  name = "GreedySolver";
+  desc = "Solver par méthode glouton (intelligent)";
+
+  logn2("GreedySolver::GreedySolver BEGIN" + name + ": " + desc + " inst: " + inst->name);
+  this->solution = new Solution(inst);
+
+  // Code pour avoir un vecteur de stations trié selon les déficits:
+  stations_triees = *(inst->stations); 
+  std::sort(stations_triees.begin(), stations_triees.end(),
+    [] (Station* s1, Station* s2) { 
+      return s1->deficit() <= s2->deficit();
+    });
+
+  logn2("GreedySolver::GreedySolver END construit inst: " + inst->name);
 }
+
+
 GreedySolver::~GreedySolver()  {
-    // TODO
+    delete this->solution;
 }
+
 // Méthode principale de ce solver, principe :
-//
+// 
 bool GreedySolver::solve() {
-    found = false;
-    return found;
+
+  // Code pour avoir un vecteur de stations trié :
+  std::vector<Station*> stations_triees = *(inst->stations); 
+  std::sort(stations_triees.begin(), stations_triees.end(),
+    [] (Station* s1, Station* s2) { 
+      return s1->deficit() <= s2->deficit();
+    });
+
+  for (std::vector<Station*>::iterator i = stations_triees.begin(); i != stations_triees.end(); ++i)
+    std::cout << (*i)->deficit() << " -- "; 
+  std::cout << std::endl;
+
+
+  found = false;
+  return found;
 }
 
 //./

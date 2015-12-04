@@ -79,7 +79,9 @@ public:
     virtual ~GreedySolver();
     virtual bool solve();
     Solution* solution;
+    std::vector<Station*> stations_triees;
     Solution* get_solution() {return this->solution;};
+
 };
 
 class AnnealingSolver : public Solver {
