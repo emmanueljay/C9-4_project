@@ -46,7 +46,7 @@ bool GreedySolver::solve() {
   // Remplir la première remorque avec des couples min-max
   Circuit* circuit = sol->circuits->at(0);
   int begin_solo = 0; // position of the first alone station;
-  int stations_to_fill_in_first = inst->stations->size() - inst->remorques->size() - 1;
+  int stations_to_fill_in_first = inst->stations->size() - inst->remorques->size() + 1;
   for (int i = 0; i < (stations_to_fill_in_first - stations_to_fill_in_first%2)/2; ++i)
   {
     logn5("GreedySolver::solve: ajout de la station " 
