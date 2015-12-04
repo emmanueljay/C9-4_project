@@ -28,13 +28,6 @@ GreedySolver::~GreedySolver()  {
 // 
 bool GreedySolver::solve() {
 
-  // Code pour avoir un vecteur de stations trié :
-  std::vector<Station*> stations_triees = *(inst->stations); 
-  std::sort(stations_triees.begin(), stations_triees.end(),
-    [] (Station* s1, Station* s2) { 
-      return s1->deficit() <= s2->deficit();
-    });
-
   for (std::vector<Station*>::iterator i = stations_triees.begin(); i != stations_triees.end(); ++i)
     std::cout << (*i)->deficit() << " -- "; 
   std::cout << std::endl;
