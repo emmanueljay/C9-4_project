@@ -1,0 +1,29 @@
+velib velib_2_s020_r2_k5..11_v1 2 20
+version 1.0
+
+#remorque id     x   y   capa
+remorque  r1    25  63      5
+remorque  r2    91  81     10
+
+#station id     x   y   capa ideal  nbvp
+station  s1    76  33     12     2     0
+station  s2    24  92      5     5     2
+station  s3    32  45      9     2     3
+station  s4    12   1     15     5    15
+station  s5    84  81     13     8     2
+station  s6    17  67     11    11     5
+station  s7    64  79      5     3     5
+station  s8    70  89     15     9     1
+station  s9    27  44     10     7     6
+station  s10   55  79      5     0     1
+station  s11   27  95     10     5     5
+station  s12   71  50      8     1     6
+station  s13    3   8     12     1     1
+station  s14   68  72      7     0     1
+station  s15   78  19     14     5    12
+station  s16   90  38      6     3     4
+station  s17   18  48     15    15     9
+station  s18   32  44     13     8    10
+station  s19   68  33      6     1     2
+station  s20   75  34     13     3     4
+
