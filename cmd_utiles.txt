@@ -1,0 +1,1 @@
+ruby velib.rb -d data/mini.dat -s data/mini-0-355.sol -p data/mini.pdf
