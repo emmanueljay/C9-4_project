@@ -9,11 +9,12 @@ GreedySolver::GreedySolver(Instance* inst) : Solver::Solver(inst) {
   logn2("GreedySolver::GreedySolver BEGIN" + name + ": " + desc + " inst: " + inst->name);
   this->solution = new Solution(inst);
 
+  logn3("GreedySolver::GreedySolver Sorting Vector");
   // Code pour avoir un vecteur de stations trié selon les déficits:
-  stations_triees = *(inst->stations); 
+  stations_triees = std::vector<Station*>(inst->stations->begin(),inst->stations->end()); 
   std::sort(stations_triees.begin(), stations_triees.end(),
     [] (Station* s1, Station* s2) { 
-      return s1->deficit() <= s2->deficit();
+      return s1->deficit() < s2->deficit();
     });
 
   logn2("GreedySolver::GreedySolver END construit inst: " + inst->name);
