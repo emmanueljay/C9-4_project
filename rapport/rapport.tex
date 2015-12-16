@@ -1,0 +1,118 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Thin Sectioned Essay
+% LaTeX Template
+% Version 1.0 (3/8/13)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% Original Author:
+% Nicolas Diaz (nsdiaz@uc.cl) with extensive modifications by:
+% Vel (vel@latextemplates.com)
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+% PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass[a4paper, 11pt]{article} % Font size (can be 10pt, 11pt or 12pt) and paper size (remove a4paper for US letter paper)
+
+\usepackage[protrusion=true,expansion=true]{microtype} % Better typography
+\usepackage[utf8]{inputenc}  
+\usepackage{graphicx} % Required for including pictures
+\usepackage{wrapfig} % Allows in-line images
+\usepackage[a4paper, margin={3cm, 3cm}]{geometry}
+
+\usepackage{mathenv}
+\usepackage{amsmath,amsfonts,amssymb}
+\usepackage{setspace}
+\usepackage{bbm}
+\usepackage{bm}
+\usepackage{layout}
+\usepackage[]{algorithm2e}
+
+\usepackage{mathpazo} % Use the Palatino font
+\usepackage[T1]{fontenc} % Required for accented characters
+\linespread{1.05} % Change line spacing here, Palatino benefits from a slight increase by default
+
+\usepackage{listings} % Pour ajouter du code
+\usepackage{xcolor}
+\lstset { %
+    language=C++,
+    backgroundcolor=\color{black!5}, % set backgroundcolor
+    basicstyle=\footnotesize,% basic font setting
+}
+
+\makeatletter
+\renewcommand\@biblabel[1]{\textbf{#1.}} % Change the square brackets for each bibliography item from '[1]' to '1.'
+\renewcommand{\@listI}{\itemsep=0pt} % Reduce the space between items in the itemize and enumerate environments and the bibliography
+
+\renewcommand{\maketitle}{ % Customize the title - do not edit title and author name here, see the TITLE block below
+\begin{flushright} % Right align
+{\LARGE\@title} % Increase the font size of the title
+
+\vspace{30pt} % Some vertical space between the title and author name
+
+{\large\@author} % Author name
+\\\@date % Date
+
+\vspace{20pt} % Some vertical space between the author block and abstract
+\end{flushright}
+}
+
+%----------------------------------------------------------------------------------------
+% TITLE
+%----------------------------------------------------------------------------------------
+
+\title{\textbf{Projet Velib : Equilibrage nocturne d'un parc de vélos}\\ % Title
+C9-4} % Subtitle
+
+\author{\textsc{ARFAOUI Armani, Jay Emmanuel, Dufour Maxime} % Author
+\\{\textit{ENSTA ParisTech}}} % Institution
+
+\date{\today} % Date
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\vspace{200pt}
+
+\maketitle % Print the title section
+
+\section{Réalisation de la brique d'équilibrage}
+
+\paragraph*{}
+Cette première étape consiste à implémenter une brique d'équilibrage performante pour un circuit donné. C'est-à-dire calculer la charge initiale à déposer dans la remorque utilisée pour ce circuit puis les dépôts/charges effectués en chaque station du circuit.
+
+\subsection{Fonctionnement de la brique d'équilibrage}
+
+\paragraph*{}
+On peut d'hors et déjà remarquer que la pénalisation du déséquilibre en une station est indépendante de la station étudiée. Le déséquilibre dans deux stations différentes est évalué de la même manière du point de vue de la qualité de la solution trouvée. Pour un circuit donné, il est alors équivalent de traiter le déséquilibre des premières stations du circuit en priorité ou bien de traiter celui des dernières stations du circuit. Traiter en priorité les premières stations du circuit semblant plus simple, la démarche gloutonne consistant pour la remorque à ré-équilibrer au mieux les stations au fur et à mesure de leur visite semble tout indiquée. Nous avons construit une fonction équilibrate qui se déroule en deux temps. D'abord, elle calcule la charge initiale optimale puis elle assigne à chaque station le meilleur depôt (positif ou non) possible. 
+
+\paragraph*{}
+Calcul de la charge intiale: Inititalement, on autorise la charge initiale à prendre ses valeurs entre 0 (borne minimale) et la capacité maximale (borne maximale) de la remorque puis au fur et à mesure du parcours des stations, on restreint de plus en plus ses bornes jusqu'à ce qu'elle ne puisse plus tenir. A chaque fois que l'on quitte une station, on calcule la charge courante de la remorque comme somme des charges (un dépôt étant compté négativement) effectuées jusqu'à quitter cette station. Si la charge courante est supérieure à la borne minimale c'est qu'il faut mettre la borne minimale à jour pour pouvoir satisfaire le déséquilibre des stations parcourues et la fixer égale à la valeur courante. La mise à jour de la borne supérieure est un peu plus complexe, il s'agit ici de détecter si l'on a emporté trop de vélos inititalement. On compare donc la charge courante à la différence entre la borne maximale et la capacité de la remorque. Si la charge courante est inférieure à cette valeur (i.e. charge courante < charge maximale - remorque->capa, ce qui implique qu'elle soit négative pour modifier la borne maximale) alors on met à jour la borne maximale (charge maximale = charge courante + remorque->capa, qui est bien inférieure a remorque->capa puisque la charge courante est négative lorsque l'on met à jour la borne). On procède ainsi jusqu'à ce que la borne minimale soit supérieure ou égale à la borne maximale, dans ce cas on ne peut plus modifier la charge intiale de manière à mieux satisfaire le déséquilibre des stations parcourues. On fixe donc la valeur de la charge intiale à la valeur de la borne qui n'a pas été modifiée à la dernière itération (i.e. la dernière station atteinte) et on a la charge initiale optimale permettant de satisfaire au mieux les stations atteintes avant le croisement des bornes minimales et maximales (ce qui est l'optimum sur le circuit dans sa gloabalité puisque nous avons montré dans le paragraphe précédent qu'il était équivalent de traiter les déséquilibres au fur et à mesure du parcours des stations).
+
+\paragraph*{}
+Calcul du dépôt en chaque station: On a déjà calculé la charge initiale optimale dans la première partie de la brique équilibrate. On parcourt de nouveau les station du circuit. Tant que la charge le permet, on compense parfaitement le déséquilibre. Dès que l'on doit déposer plus de vélos que l'on en a dans la remorque, on dépose tout ce qu'on peut (le déséquilibre global du circuit est incrémenté) et on obtient une remorque vide qui continue son trajet (peut-être qu'ultérieurement elle récupérera des vélos qu'elle pourra redéposer). Si l'on doit récupérer plus de vélos plus que l'on a de places libres dans la remorque, on recupère tout ce que l'on peut (le déséquilibre global du circuit est incrémenté) et l'on obtient une remorque pleine qui continue également son trajet (de la même manière elle rencontrera peut-être une station nécessitant un dépôt ultérieurement dans son circuit). De cette manière, on a un dépôt optimal en chaque station pour le circuit considéré.
+
+
+
+\subsection{Questions subsidiaires}
+
+\paragraph*{}
+Si le coût de pénalité était linéaire et différent selon les stations, il faudrait équilibrer en priorité les stations de coût maximal. Ce n'est pas évident à réaliser si elles ne sont pas situées au début du circuit avec la méthode gloutonne que nous avons décrit précédemment. Dans ce cas, une première approche serait simplement de trier les stations du circuit par coût de pénalisation pour commencer par équilibrer en priorité celles dont le coût est le plus élevé. Avec cette approche, on ne tient pas vraiment compte de l'ordre de parcours des stations mais comme la distance parcourue est bien moins pénalisée que le déséquilibre, il est réellement intéressant de prioriser celui-ci lors du calcul d'une solution. On ordonne donc les stations en  fonction de leur coût dans la fonction objectif et on chercher à équilibrer en priorité les stations avec les coûts les plus élevés.
+
+\paragraph*{}
+Si la pénalisation est non linéaire, la méthode employée dépendra grandement de la fonction coût utilisée. Par exemple, si l'on sélectionne une pénalisation quadratique. L'équilibrage devra être le plus diffus possible pour éviter des cas où une station serait très déséquilibrée (grosse pénalisation) alors que toutes les autres stations sont équilibrées. Il faudrait mieux créer des solutions dans lesquelles toutes les stations ont un léger déséquilibrage pour minimiser la fonction objectif. Pour cela on pourrait calculer un indicateur donnant le déséquilibre initiale du circuit et ainsi obtenir un déséquilibre moyen que l'on doit obtenir pour les stations du circuit.
+
+
+
+
+\end{document}
+
