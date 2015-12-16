@@ -9,12 +9,20 @@ GreedySolver::GreedySolver(Instance* inst) : Solver::Solver(inst) {
   logn2("GreedySolver::GreedySolver BEGIN" + name + ": " + desc + " inst: " + inst->name);
   this->solution = new Solution(inst);
 
-  logn3("GreedySolver::GreedySolver Sorting Vector");
+  logn3("GreedySolver::GreedySolver Sorting Vector for stations");
   // Code pour avoir un vecteur de stations trié selon les déficits:
   stations_triees = std::vector<Station*>(inst->stations->begin(),inst->stations->end()); 
   std::sort(stations_triees.begin(), stations_triees.end(),
     [] (Station* s1, Station* s2) { 
       return s1->deficit() < s2->deficit();
+    });
+
+  logn3("GreedySolver::GreedySolver Sorting Vector for trucks");
+  // Code pour avoir un vecteur de stations trié selon les déficits:
+  remorques_triees = std::vector<Remorque*>(inst->remorques->begin(),inst->remorques->end()); 
+  std::sort(remorques_triees.begin(), remorques_triees.end(),
+    [] (Remorque* r1, Remorque* r2) { 
+      return r1->capa >= r2->capa;
     });
 
   logn2("GreedySolver::GreedySolver END construit inst: " + inst->name);
@@ -32,6 +40,10 @@ GreedySolver::~GreedySolver()  {
 // juste une station
 bool GreedySolver::solve() {
 
+for (std::vector<Remorque*>::iterator i = remorques_triees.begin(); i != remorques_triees.end(); i++ )
+  std::cout << (*i)->capa << " -- ";
+std::cout << std::endl;
+
 
   // Not used in this function
   Options* args = Options::args;
@@ -45,7 +57,7 @@ bool GreedySolver::solve() {
   Solution* sol = new Solution(inst);
 
   // Remplir la première remorque avec des couples min-max
-  Circuit* circuit = sol->circuits->at(0);
+  Circuit* circuit = sol->circuits->at(remorques_triees.at(0)->id);
   int begin_solo = 0; // position of the first alone station;
   int stations_to_fill_in_first = inst->stations->size() - inst->remorques->size() + 1;
   for (int i = 0; i < (stations_to_fill_in_first - stations_to_fill_in_first%2)/2; ++i)
@@ -64,14 +76,16 @@ bool GreedySolver::solve() {
   }
 
   // Remplir les autres remorques avec une unique station
-  for (int circuit_id = 1; circuit_id < inst->remorques->size(); ++circuit_id)
+  for (int circuit_id = 0; circuit_id < inst->remorques->size(); ++circuit_id)
   {
-    circuit = sol->circuits->at(circuit_id);
-    logn5("GreedySolver::solve: ajout de la station " 
-          + stations_triees.at(begin_solo)->name +
-          " à la remorque " + circuit->remorque->name);
-    circuit->stations->push_back(stations_triees.at(begin_solo));
-    ++begin_solo;
+    if (circuit_id != remorques_triees.at(0)->id){
+      circuit = sol->circuits->at(circuit_id);
+      logn5("GreedySolver::solve: ajout de la station " 
+            + stations_triees.at(begin_solo)->name +
+            " à la remorque " + circuit->remorque->name);
+      circuit->stations->push_back(stations_triees.at(begin_solo));
+      ++begin_solo;
+    }  
   }
 
   logn4("GreedySolver::solve: avant appel à sol->update");

@@ -80,6 +80,7 @@ public:
     virtual bool solve();
     Solution* solution;
     std::vector<Station*> stations_triees;
+    std::vector<Remorque*> remorques_triees;
     Solution* get_solution() {return this->solution;};
 
 };
