@@ -34,25 +34,25 @@ bool AnnealingSolver::solve() {
 
 
 
-  // // Principe : On prend les stations dans l'ordre de l'instance, puis
-  // // on les affecte a chaque remorque à tour de rôle.
-  // //
-  // Solution* sol = new Solution(inst);
-  // int remorque_id = -1;
-  // for (unsigned j = 0; j < inst->stations->size(); j++) {
-  //     // on extrait la prochaine station à visiter
-  //     Station* station = inst->stations->at(j);
-  //     // sélection des remorques à tour de rôle
-  //     remorque_id = (remorque_id + 1) % inst->remorques->size();
-  //     // on extrait le circuit associé à la remorque sélectionnée
-  //     Circuit* circuit = sol->circuits->at(remorque_id);
-  //     // on ajoute la station en fin de ce circuit
-  //     logn5("StupidSolver::solve: ajout de la station " + station->name +
-  //           " à la remorque " + circuit->remorque->name);
-  //     circuit->stations->push_back(station);
-  //     // update inutile ici car n'a pas (encore) besoin de mesurer la
-  //     // stupidité de cette insertion !
-  // }
+  // Principe : On prend les stations dans l'ordre de l'instance, puis
+  // on les affecte a chaque remorque à tour de rôle.
+  //
+  Solution* sol = new Solution(inst);
+  int remorque_id = -1;
+  for (unsigned j = 0; j < inst->stations->size(); j++) {
+      // on extrait la prochaine station à visiter
+      Station* station = inst->stations->at(j);
+      // sélection des remorques à tour de rôle
+      remorque_id = (remorque_id + 1) % inst->remorques->size();
+      // on extrait le circuit associé à la remorque sélectionnée
+      Circuit* circuit = sol->circuits->at(remorque_id);
+      // on ajoute la station en fin de ce circuit
+      logn5("StupidSolver::solve: ajout de la station " + station->name +
+            " à la remorque " + circuit->remorque->name);
+      circuit->stations->push_back(station);
+      // update inutile ici car n'a pas (encore) besoin de mesurer la
+      // stupidité de cette insertion !
+  }
 
 
 
