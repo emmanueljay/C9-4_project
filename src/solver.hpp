@@ -78,6 +78,7 @@ public:
     GreedySolver(Instance* Instance);
     virtual ~GreedySolver();
     virtual bool solve();
+    virtual bool solve_insertbest();
     Solution* solution;
     std::vector<Station*> stations_triees;
     std::vector<Remorque*> remorques_triees;
