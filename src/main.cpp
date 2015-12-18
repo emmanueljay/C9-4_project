@@ -93,7 +93,14 @@ int main(int argc, char *argv[]) {
     } else if (args->solver == 4) {;
         logn1("Solver 4 : glouton (GreedySolver)");
         GreedySolver* solver = new GreedySolver(inst);
-        solver->solve();
+        int greedy_used = args->itermax; // Using Itermax to store information
+        if (greedy_used == 100) greedy_used = 2;
+        switch (greedy_used){
+            case 0 : {cout << "Using solver 0" << endl; solver->solve(); break;}
+            case 1 : {cout << "Using solver 1" << endl; solver->solve_insertbest(); break;}
+            case 2 : {cout << "Using solver 2" << endl; solver->solve_use_other_truck(); break;}
+            cout << "ERROR : WRONG PARAM (ITER MAX) TO WHICH GREEDY SOLVER USE (0 to 2)" << endl;
+        }
         if (solver->found) {
             cout << "Solver : solution trouvée de coût "
                  << solver->solution->get_cost() << endl;

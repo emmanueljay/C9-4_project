@@ -79,6 +79,7 @@ public:
     virtual ~GreedySolver();
     virtual bool solve();
     virtual bool solve_insertbest();
+    virtual bool solve_use_other_truck();
     Solution* solution;
     std::vector<Station*> stations_triees;
     std::vector<Remorque*> remorques_triees;
