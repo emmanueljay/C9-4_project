@@ -111,6 +111,34 @@ Si le coût de pénalité était linéaire et différent selon les stations, il 
 \paragraph*{}
 Si la pénalisation est non linéaire, la méthode employée dépendra grandement de la fonction coût utilisée. Par exemple, si l'on sélectionne une pénalisation quadratique. L'équilibrage devra être le plus diffus possible pour éviter des cas où une station serait très déséquilibrée (grosse pénalisation) alors que toutes les autres stations sont équilibrées. Il faudrait mieux créer des solutions dans lesquelles toutes les stations ont un léger déséquilibrage pour minimiser la fonction objectif. Pour cela on pourrait calculer un indicateur donnant le déséquilibre initiale du circuit et ainsi obtenir un déséquilibre moyen que l'on doit obtenir pour les stations du circuit.
 
+\section{Glouton intelligent}
+
+\paragraph*{}
+Dans cette étape, nous allons réaliser un glouton intelligent utilisant les deux briques de base (équilibrage et insertion). Pour cela nous avons comparé différentes méthodes plus ou moins intelligentes pour mieux comprendre l'impact d'appels trop fréquents à ces briques de base. Chacune de ces méthodes repose sur un tri préalable des stations en fonction de leur déficit. L'idée de notre algorithme glouton est de sélectionner successivement le premier et le dernier élément de la liste pour que les déséquilibres se compensent au mieux (cela ne permettra pas forcément d'obtenir un déséquilibre nul si les deux extrêmes ont des valeurs absolues trop différentes). L'objectif principal à ce stade est de minimiser le déséquilibre sans prendre en compte la pénalité liée au trajet puisque le déséquilibre est nettement plus pénalisée. Pour le moment, on se contente d'assigner la quasi-totalité des stations à la remorque de plus grande capacité (en s'assurant d'assigner au moins une station à chaque remorque à la fin lorsque les déséquilibres sont les plus faibles pour s'assurer du respect des capacités des remorques).
+
+\subsection{Utilisation exclusive du pushback}
+
+\paragraph*{}
+Cette première approche gloutonne pour exploiter la liste des stations triées par deficit sélectionne successivement le premier et le dernier élément de la liste triée et le place en bout de circuit. Cela ne nécessite quasiment aucun calculs pour placer une station et permet d'obtenir des solutions nettement meilleurs que le glouton stupide pour un temps de calcul instantané sur toutes les instances.
+
+\paragraph*{}
+L'intérêt de cette méthode est sa rapidité d'exécution pour trouver une solution améliorant nettement celle du glonton stupide. La piste d'amélioration porte sur l'insertion d'une station qui pour le moment est simpliste.
+
+\subsection{Insertion exclusive avec insertbest}
+
+\paragraph*{}
+On continue d'exploiter la liste triée des stations en sélectionnant successivement le premier et le dernier élément de la liste. La différence principale est que l'insertion de la station sélectionnée se fait au moyen d'insertbest. On place optimalement la station dans le circuit existant ce qui peut permettre de comprenser des écarts trop grands entre deux bornes successives.
+
+\paragraph*{}
+Cette méthode est nettement plus longue (prend jusqu'à 3 minutes sur v9, la précédente méthode étant instantanée) mais permet de réduire le déséquilibre de manière notable.
+
+\subsection{Insertion intelligente avec minimisation de l'appel à insertbest}
+
+\paragraph*{}
+Pour ne pas trop perdre en temps de calcul lors de l'insertion des stations, celle-ci va être réalisée en plusieurs étapes. Tout d'abord, on sélectionne une station (toujours une extrémité de la liste triée par déficit) puis on la place en bout de circuit. Si le déséquilibre du circuit correpondant est nul, on passe à la station suivante. Sinon, on retire la station du bout du circuit et on essaye de l'insérer au moyen d'insertbest. De la même manière si le déséquilibre du circuit est nul, on passe à la station suivante, sinon on place la station dans la deuxième remorque de plus grande capacité. On réitère ce procédé pour toutes les stations en s'assurant que toutes les remorques aient au minimum une station à visiter.
+
+\paragraph*{}
+Cette méthode permet d'obtenir des résultats très intéressant du point de vue de la minimisation du déséquilibre. Par ailleurs, le temps de calcul n'est pas trop long puisqu'on limite énormément l'appel à la fonction insertbest.
 
 
 
