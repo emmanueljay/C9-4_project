@@ -200,7 +200,6 @@ void smart_insert_in_trucks(Circuit* fst_circuit, Circuit* snd_circuit, Station*
 }  
 
 
-
 // Troisème méthode de ce solver, principe :
 // 
 // c'est tu le mets au bout du circuit de la premiere reporque
@@ -232,16 +231,10 @@ bool GreedySolver::solve_use_other_truck() {
   else 
     circuit_r1 = sol->circuits->at(remorques_triees.at(1)->id);
   
-  
   int begin_solo = 0; // position of the first alone station;
   int stations_to_fill_in_first = inst->stations->size() - inst->remorques->size() + 1;
   for (int i = 0; i < (stations_to_fill_in_first - stations_to_fill_in_first%2)/2; ++i)
-  {
-    // logn5("GreedySolver::solve_insertbest: ajout de la station " 
-    //   + stations_triees.at(i)->name + " et " 
-    //   + stations_triees.at(stations_triees.size()-1-i)->name
-    //   + " à la remorque " + circuit_r0->remorque->name);
-    
+  {    
     // Insertion at the end
     
     smart_insert_in_trucks(circuit_r0, circuit_r1, stations_triees.at(i));
