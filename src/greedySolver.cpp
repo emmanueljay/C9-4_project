@@ -124,10 +124,11 @@ bool GreedySolver::solve()
                 auto it=circuit->stations->begin() ;
                 while ((it != circuit->stations->end())&& ((*it)->id != stations_triees.at(stations_triees.size()-1-i)->id) )it++;
 
+                Station* station = *it;
                 circuit->stations->erase(it);//on la supprime
                 circuit->update() ;
                 // on l'insert dans la deuxiéme remorque
-                sol->circuits->at(remorques_triees.at(1)->id)->stations->push_back(*it);
+                sol->circuits->at(remorques_triees.at(1)->id)->stations->push_back(station);
 
                 sol->circuits->at(remorques_triees.at(1)->id)->update();
             }
@@ -149,10 +150,11 @@ bool GreedySolver::solve()
                 auto it=circuit->stations->begin() ;
                 while ((it != circuit->stations->end())&& ((*it)->id != stations_triees.at(begin_solo)->id) )it++;
 
+                Station* station = *it;
                 circuit->stations->erase(it);//on la supprime
                 circuit->update() ;
                 // on l'insert dans la deuxiéme remorque
-                sol->circuits->at(remorques_triees.at(1)->id)->stations->push_back(*it);
+                sol->circuits->at(remorques_triees.at(1)->id)->stations->push_back(station);
 
                 sol->circuits->at(remorques_triees.at(1)->id)->update();
             }
