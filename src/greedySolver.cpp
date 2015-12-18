@@ -25,7 +25,7 @@ GreedySolver::GreedySolver(Instance* inst) : Solver::Solver(inst)
     std::sort(remorques_triees.begin(), remorques_triees.end(),
               [] (Remorque* r1, Remorque* r2)
     {
-        return r1->capa >= r2->capa;
+        return r1->capa > r2->capa;
     });
 
     logn2("GreedySolver::GreedySolver END construit inst: " + inst->name);
@@ -46,7 +46,7 @@ bool GreedySolver::solve()
 {
 
     for (std::vector<Station*>::iterator i = stations_triees.begin(); i != stations_triees.end(); i++ )
-        std::cout << (*i)->deficit()<< " -- ";
+        std::cout << (*i)->name << " " << (*i)->deficit()<< " -- ";
     std::cout << std::endl;
 
 
@@ -69,12 +69,13 @@ bool GreedySolver::solve()
     for(int i=0 ; i < (stations_to_fill_in_first - stations_to_fill_in_first%2)/2; i++)
     {
         // on insere la station la plus déficitaire dans la premiere remorque
-        logn5("GreedySolver::solve: ajout de la station "
+        logn2("GreedySolver::solve: ajout de la station "
               + stations_triees.at(i)->name + " à la remorque " + circuit->remorque->name);
         circuit->stations->push_back(stations_triees.at(i));
         // on teste  le desequi
 
         circuit->update() ;
+        logn5("GreedySolver::solve: desequilibre actuel " + circuit->desequilibre);
         if(circuit->desequilibre!=0)
 
         {
@@ -82,6 +83,8 @@ bool GreedySolver::solve()
             circuit->insert_best(stations_triees.at(i));// on l'insere au bon endroit
             circuit->update();
 
+            logn5("GreedySolver::solve: desequilibre actuel "
+                + circuit->desequilibre);
             //retester le desequi
             if(circuit->desequilibre!=0)
             {
@@ -99,9 +102,11 @@ bool GreedySolver::solve()
         }
         ++begin_solo;
         //push pour le max
+        logn2("GreedySolver::solve: charge de" + (circuit->charges)[stations_triees.at(i)] + "apres la station "
+              +stations_triees.at(i)->name);
         // on insere la station la moins déficitaire dans la premiere remorque
 
-        logn5("GreedySolver::solve: ajout de la station "
+        logn2("GreedySolver::solve: ajout de la station "
               +stations_triees.at(stations_triees.size()-1-i)->name
               + " à la remorque " + circuit->remorque->name);
         circuit->stations->push_back(stations_triees.at(stations_triees.size()-1-i));
@@ -129,6 +134,8 @@ bool GreedySolver::solve()
 
 
         }
+        logn2("GreedySolver::solve: charge de" + (circuit->charges)[stations_triees.at(stations_triees.size()-1-i)] + "apres la station "
+              +stations_triees.at(stations_triees.size()-1-i)->name);
     }
     if (stations_to_fill_in_first%2 == 1)
     {
