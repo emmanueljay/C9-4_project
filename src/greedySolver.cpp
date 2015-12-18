@@ -1,6 +1,7 @@
 #include "solver.hpp"
 
 #include <algorithm>
+#include <string>
 
 GreedySolver::GreedySolver(Instance* inst) : Solver::Solver(inst)
 {
@@ -75,7 +76,7 @@ bool GreedySolver::solve()
         // on teste  le desequi
 
         circuit->update() ;
-        logn5("GreedySolver::solve: desequilibre actuel " + circuit->desequilibre);
+        logn5("GreedySolver::solve: desequilibre actuel " + std::to_string(circuit->desequilibre));
         if(circuit->desequilibre!=0)
 
         {
@@ -84,12 +85,12 @@ bool GreedySolver::solve()
             circuit->update();
 
             logn5("GreedySolver::solve: desequilibre actuel "
-                + circuit->desequilibre);
+                + std::to_string(circuit->desequilibre));
             //retester le desequi
             if(circuit->desequilibre!=0)
             {
                 auto it=circuit->stations->begin() ;
-                while ((it != circuit->stations->end())&& (*it != stations_triees.at(i))) it++;
+                while ((it != circuit->stations->end())&& ((*it)->id != stations_triees.at(i)->id)) it++;
 
                 circuit->stations->erase(it);//on la supprime
                 circuit->update() ;
@@ -102,7 +103,7 @@ bool GreedySolver::solve()
         }
         ++begin_solo;
         //push pour le max
-        logn2("GreedySolver::solve: charge de" + (circuit->charges)[stations_triees.at(i)] + "apres la station "
+        logn2("GreedySolver::solve: charge de" + std::to_string(circuit->charges->at(stations_triees.at(i))) + "apres la station "
               +stations_triees.at(i)->name);
         // on insere la station la moins déficitaire dans la premiere remorque
 
@@ -121,7 +122,7 @@ bool GreedySolver::solve()
             if(circuit->desequilibre!=0)
             {
                 auto it=circuit->stations->begin() ;
-                while ((it != circuit->stations->end())&& (*it != stations_triees.at(stations_triees.size()-1-i)) )it++;
+                while ((it != circuit->stations->end())&& ((*it)->id != stations_triees.at(stations_triees.size()-1-i)->id) )it++;
 
                 circuit->stations->erase(it);//on la supprime
                 circuit->update() ;
@@ -134,7 +135,7 @@ bool GreedySolver::solve()
 
 
         }
-        logn2("GreedySolver::solve: charge de" + (circuit->charges)[stations_triees.at(stations_triees.size()-1-i)] + "apres la station "
+        logn2("GreedySolver::solve: charge de" + std::to_string((circuit->charges)->at(stations_triees.at(stations_triees.size()-1-i))) + "apres la station "
               +stations_triees.at(stations_triees.size()-1-i)->name);
     }
     if (stations_to_fill_in_first%2 == 1)
@@ -146,7 +147,7 @@ bool GreedySolver::solve()
             if(circuit->desequilibre!=0)
             {
                 auto it=circuit->stations->begin() ;
-                while ((it != circuit->stations->end())&& (*it != stations_triees.at(begin_solo)) )it++;
+                while ((it != circuit->stations->end())&& ((*it)->id != stations_triees.at(begin_solo)->id) )it++;
 
                 circuit->stations->erase(it);//on la supprime
                 circuit->update() ;
