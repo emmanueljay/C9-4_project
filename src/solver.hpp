@@ -91,6 +91,12 @@ class AnnealingSolver : public Solver {
 public:
     AnnealingSolver(Instance* Instance);
     virtual ~AnnealingSolver();
+
+    void get_initial_solution(Solution* sol);
+    double get_energy(Solution* sol, int version = 0);
+    double get_next_temperature(double old_temp, double lambda = 0.99, int version = 0);   
+    void get_neighbour(Solution* sol, Solution* old_sol);
+
     virtual bool solve();
     Solution* get_solution() {return this->solution;};
 };
