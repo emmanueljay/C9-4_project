@@ -73,11 +73,48 @@ double AnnealingSolver::get_next_temperature(double old_temp, double lambda, int
   return temperature;
 }
 
-// Function that return a neighbour of the function randomly
+/**
+ * Function that return a neighbour of the function randomly
+ * if we have nb_sta stations, we pick a position in 0,nb_sta-1 and we select the 
+ * corresponding station in circuit
+ */
 void AnnealingSolver::get_neighbour(Solution* sol, Solution* old_sol) {
+  // Clearing the new sol and copying the old solution into the new one.
+  sol->clear();
   sol->copy(old_sol);
 
+  // Chosing a station randomly, to be removed.
+  Station* station;
+  int station_id = rand() % inst->nb_stations;
+  logn4("We selected the station at position : " + to_string(station_id));
 
+  for (Circuit* circuit : *(sol->circuits)) {
+    list<Station*>* stations =  circuit->stations;
+    if (station_id < stations->size()) {
+      // Finding station
+      std::list<Station*>::iterator it = stations->begin();
+      std::advance(it, station_id);
+      station = *(it);
+
+      // Removing station from circuit
+      stations->erase(it);
+
+      break;
+    }
+    else 
+      station_id -= stations->size();
+  }
+
+  // We remove the station from the circuit
+
+  // Chosing a cuircuit where we will insert_best the solution to.
+  int remorque_id = rand() % inst->nb_remorques;
+  logn4("We selected the remorque with id : " + to_string(remorque_id));
+
+  Circuit* circuit = sol->circuits->at(remorque_id);
+  circuit->insert_best(station); 
+
+  sol->update();
   return;
 }
 
@@ -113,7 +150,7 @@ void AnnealingSolver::get_neighbour(Solution* sol, Solution* old_sol) {
  * @return Si une solution a pu être trouvée
  */
 bool AnnealingSolver::solve() {
-  if (log3()) {
+  if (log2()) {
       cout << "\n---AnnealingSolver::solve START instance: "
            << inst->name << " de taille "
            << inst->stations->size() << "\n";
@@ -132,39 +169,50 @@ bool AnnealingSolver::solve() {
   itermax =  itermax == -1 ? 1 : itermax;
 
   // Recuit informations
-  int temperature = 10;   // Initial temperature
+  int temperature = 10000;   // Initial temperature
   double energy_max = 0;  // Energy maximum of acceptation
   double energy;          // Energy
   int k = 0;              // Iteration
+  Solution* neighbour = new Solution(inst); // Intermediate solution
 
   // INITIAL SOLUTION (Stupid)
   Solution* sol = new Solution(inst);
   get_initial_solution(sol);
   energy = get_energy(sol);
-  logn3("AnnealingSolver::Cost of the initial solution = "+sol->get_cost_string());
-  logn3("AnnealingSolver::Energy of the initial solution = "+to_string(energy));
+  logn2("AnnealingSolver::Cost of the initial solution = "+sol->get_cost_string());
+  logn2("AnnealingSolver::Energy of the initial solution = "+to_string(energy));
+
+  Solution* best_sol = new Solution(inst);
+  best_sol->copy(sol);
 
   // RECUIT
   while (k < itermax && energy > energy_max) {
-    logn4("AnnealingSolver:: Iteration number "+to_string(k));
+    logn3("AnnealingSolver:: Iteration number "+to_string(k));
 
     // Updating Temperature
-    if (k % 100 == 0)
+    if (k % 10 == 0)
       temperature = get_next_temperature(temperature);
-    logn5("AnnealingSolver:: Temperature value "+to_string(temperature));
+    logn3("AnnealingSolver:: Temperature value "+to_string(temperature));
 
     // Getting neighbour
-    Solution* neighbour = new Solution(inst);
     get_neighbour(neighbour,sol);
     double energy_neighbour = get_energy(neighbour);
-    logn5("AnnealingSolver:: Energy of neighbour = "+to_string(energy_neighbour));
+    logn3("AnnealingSolver:: Energy of neighbour = "+to_string(energy_neighbour));
 
     // Choosing the solution
     if (energy_neighbour < energy ||
-        ((double) rand() / (RAND_MAX)) < exp(energy_neighbour - energy/temperature)) 
+        ((double) rand() / (RAND_MAX)) < exp(energy_neighbour - energy/(temperature+0.0001))) 
     {
       logn3("AnnealingSolver:: New solution found, energy = "+to_string(energy_neighbour));
+
+      sol->clear();
       sol->copy(neighbour);
+
+      if (sol->get_cost() < best_sol->get_cost()) {
+        best_sol->clear();
+        best_sol->copy(sol);
+      }
+
       energy = energy_neighbour;
     }
 
@@ -173,7 +221,7 @@ bool AnnealingSolver::solve() {
   }
 
   this->found = true;
-  this->solution = sol;
-  logn3("StupidSolver::solve: END");
+  this->solution = best_sol;
+  logn2("StupidSolver::solve: END");
   return found;
 }
