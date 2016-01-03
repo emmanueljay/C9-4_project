@@ -78,7 +78,7 @@ double AnnealingSolver::get_next_temperature(double old_temp, double lambda, int
  * if we have nb_sta stations, we pick a position in 0,nb_sta-1 and we select the 
  * corresponding station in circuit
  */
-void AnnealingSolver::get_neighbour(Solution* sol, Solution* old_sol) {
+void AnnealingSolver::get_neighbour(Solution* sol, Solution* old_sol, int recuit_variant) {
   // Clearing the new sol and copying the old solution into the new one.
   sol->clear();
   sol->copy(old_sol);
@@ -118,53 +118,52 @@ void AnnealingSolver::get_neighbour(Solution* sol, Solution* old_sol) {
   }
   // We remove the station from the circuit
 
-  // //// INSERT BEST
-  // // Chosing a cuircuit where we will insert_best the solution to.
-  // int remorque_id = rand() % inst->nb_remorques;
-  // logn4("We selected the remorque with id : " + to_string(remorque_id));
+  if (recuit_variant == 0) {
+    //// INSERT BEST
+    // Chosing a cuircuit where we will insert_best the solution to.
+    int remorque_id = rand() % inst->nb_remorques;
+    logn4("We selected the remorque with id : " + to_string(remorque_id));
 
-  // Circuit* circuit = sol->circuits->at(remorque_id);
-  // circuit->insert_best(station); 
+    Circuit* circuit = sol->circuits->at(remorque_id);
+    circuit->insert_best(station); 
+  }
+  else if (recuit_variant == 1) {
+    //// NORMAL INSERT
+    // Chosing a cuircuit where we will insert_best the solution to.
+    int position_id = rand() % (inst->nb_remorques + inst->nb_stations -1);
+    logn4("We selected the position number : " + to_string(position_id));
 
+    for (Circuit* circuit : *(sol->circuits)) {
+      list<Station*>* stations =  circuit->stations;
+      logn5("Circuit " + to_string(circuit->remorque->id) +
+            " whith size " + to_string(stations->size()));
+      if (position_id < stations->size()) {
 
-  //// NORMAL INSERT
-  // Chosing a cuircuit where we will insert_best the solution to.
-  int position_id = rand() % (inst->nb_remorques + inst->nb_stations -1);
-  logn4("We selected the position number : " + to_string(position_id));
+        // Finding position
+        std::list<Station*>::iterator it = stations->begin();
+        std::advance(it, position_id);
 
-  bool inserted = false;
-  for (Circuit* circuit : *(sol->circuits)) {
-    list<Station*>* stations =  circuit->stations;
-    logn5("Circuit " + to_string(circuit->remorque->id) +
-          " whith size " + to_string(stations->size()));
-    if (position_id < stations->size()) {
+        logn5("Adding station at position"+ to_string(position_id) +
+         " of remorque : " + to_string(circuit->remorque->id));
 
-      // Finding position
-      std::list<Station*>::iterator it = stations->begin();
-      std::advance(it, position_id);
-
-      logn5("Adding station at position"+ to_string(position_id) +
-       " of remorque : " + to_string(circuit->remorque->id));
-
-      // Removing station from circuit
-      stations->insert(it,station);
-      inserted = true;
-      break;
-      
+        // Removing station from circuit
+        stations->insert(it,station);
+        break;
+      }
+      else if (position_id == stations->size()) {
+        logn5("Adding station at last position of remorque : " + to_string(circuit->remorque->id));
+        stations->push_back(station);
+        break;
+      }
+      else 
+        position_id -= stations->size() + 1;
     }
-    else if (position_id == stations->size()) {
-      logn5("Adding station at last position of remorque : " + to_string(circuit->remorque->id));
-      stations->push_back(station);
-      inserted = true;
-      break;
-    }
-    else 
-      position_id -= stations->size() + 1;
+  }
+  else {
+    logn1("Please set option --recuit-variant to 0 or 1");
+    exit(2);
   }
 
-  if (inserted == false) {
-    exit(1);
-  }
   // Update and return
   sol->update();
   return;
@@ -217,11 +216,19 @@ bool AnnealingSolver::solve() {
   const string sinserter = args->station_inserter;
   const string rchooser = args->remorque_chooser;
   int itermax = args->itermax;
+  int recuit_variant = args->recuit_variant;
+  double temp_init = args->temp_init;
+  double lambda = args->lambda;
+  int size_palier = args->size_palier;
+
   // Par défaut (-1) on ne fait qu'une seule itération
   itermax =  itermax == -1 ? 1 : itermax;
+  temp_init =  temp_init == 10000.0 ? 10000.0 : temp_init;
+  lambda =  lambda == 0.99 ? 0.99 : lambda;
+  size_palier =  size_palier == 10 ? 10 : size_palier;
 
   // Recuit informations
-  double temperature = 10000;   // Initial temperature
+  double temperature = temp_init;   // Initial temperature (default)
   double energy_max = 0;  // Energy maximum of acceptation
   double energy;          // Energy
   int k = 0;              // Iteration
@@ -242,12 +249,12 @@ bool AnnealingSolver::solve() {
     logn3("AnnealingSolver:: Iteration number "+to_string(k));
 
     // Updating Temperature
-    if (k % 10 == 0)
-      temperature = get_next_temperature(temperature,0.99);
+    if (k % size_palier == 0)
+      temperature = get_next_temperature(temperature,lambda);
     logn3("AnnealingSolver:: Temperature value "+to_string(temperature));
 
     // Getting neighbour
-    get_neighbour(neighbour,sol);
+    get_neighbour(neighbour,sol,recuit_variant);
     double energy_neighbour = get_energy(neighbour);
     logn3("AnnealingSolver:: Energy of neighbour = "+to_string(energy_neighbour));
 

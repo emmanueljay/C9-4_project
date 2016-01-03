@@ -31,6 +31,16 @@ class Options  {
 
     bool print_exemple;
 
+    // Greedy solver option
+    
+    int greedy_variant; 
+
+    // Annealing Solver Options
+
+    int recuit_variant;
+    double temp_init;
+    double lambda;
+    int size_palier;
 
     // Liste des paramètres simples (par exemple la listes des fichiers à traiter).
     // Elle est déjà accessible dans parser, mais on peut souhaiter supprimer
@@ -208,8 +218,23 @@ class Options  {
             parser->print_values(cout);
         }
 
+        // Vérification de la valeur de greedy_variant
+        if ( this->greedy_variant < 0 || this->greedy_variant > 2 ) {
+            cerr << "Erreur valeur de greedy_variant incorrecte : "
+                << this-> greedy_variant << endl;
+            cerr << parser->get("--greedy-variant")->get_help();
+            exit(1);
+        }
+
+        // Vérification de la valeur de recuit_variant
+        if ( this->recuit_variant < 0 || this->recuit_variant > 1 ) {
+            cerr << "Erreur valeur de recuit_variant incorrecte : "
+                << this-> recuit_variant << endl;
+            cerr << parser->get("--recuit-variant")->get_help();
+            exit(1);
+        }
+
         // traitemenet du générateur aléatoire
-        //
         if (this->seed == 0) {
             this->seed = time(0);  // TODO : TESTER NECESSITE => OUI CA L'EST !!
         }
@@ -327,6 +352,40 @@ class Options  {
         parser->add_switch_option("--force", this->force)
               ->set_desc("Autorise l'écrasement d'un fichier existant.\n"
                          "    (e.g. fichier de sortie, ...)");
+
+       //--------------
+       parser->add_doc("\nOptions liées au glouton intelligent\n");
+
+       this->greedy_variant = 2; // valeur par défaut
+       parser->add_int_option("--greedy-variant", this->greedy_variant)
+             ->set_desc("Numéro de la variantes du glouton (de 0 à 2)")
+             ->add_alias("--gvar")
+             ->add_abbrev("-gv0", 0)
+             ->add_abbrev("-gv1", 1)
+             ->add_abbrev("-gv2", 2);
+
+       //--------------
+       parser->add_doc("\nOptions liées au recuit simulé\n");
+
+       this->recuit_variant = 1; // valeur par défaut
+       parser->add_int_option("--recuit-variant", this->recuit_variant)
+             ->set_desc("Numéro de la variantes du recuit (de 0 à 1)")
+             ->add_alias("--rvar")
+             ->add_abbrev("-rv0", 0)
+             ->add_abbrev("-rv1", 1);
+
+        this->temp_init = 10000.0;
+        parser->add_double_option("--temp-init", this->temp_init)
+              ->set_desc("Temperature initiale du recuit.");
+
+        this->lambda = 0.99;
+        parser->add_double_option("--lambda", this->lambda)
+              ->set_desc("Lambda de la décroissance de la temperature : Tn = T* lambda.");
+
+        this->size_palier = 10;
+        parser->add_int_option("--size-palier", this->size_palier)
+              ->set_desc("Longueur d'un palier de temperature.");
+
 
         parser->set_params_vector(this->params);
     };
