@@ -178,7 +178,7 @@ bool AnnealingSolver::solve() {
   itermax =  itermax == -1 ? 1 : itermax;
 
   // Recuit informations
-  int temperature = 1000;   // Initial temperature
+  double temperature = 100;   // Initial temperature
   double energy_max = 0;  // Energy maximum of acceptation
   double energy;          // Energy
   int k = 0;              // Iteration
@@ -210,7 +210,7 @@ bool AnnealingSolver::solve() {
 
     // Choosing the solution
     if (energy_neighbour < energy ||
-        ((double) rand() / (RAND_MAX)) < exp(energy_neighbour - energy/(temperature+0.0001))) 
+        ((double) rand() / (RAND_MAX)) < exp((energy - energy_neighbour)/temperature)) 
     {
       logn3("AnnealingSolver:: New solution found, energy = "+to_string(energy_neighbour));
       if (energy_neighbour < energy)
@@ -224,7 +224,7 @@ bool AnnealingSolver::solve() {
       if (sol->get_cost() < best_sol->get_cost()) {
         // We have a better solution 
         cout << endl << "AnnealingSolver:: Better sol found : " 
-          << sol->get_cost() << endl;
+          << sol->get_cost() << " Temp : " << temperature << endl;
         best_sol->clear();
         best_sol->copy(sol);
       }
