@@ -93,6 +93,8 @@ void AnnealingSolver::get_neighbour(Solution* sol, Solution* old_sol) {
 
     for (Circuit* circuit : *(sol->circuits)) {
       list<Station*>* stations =  circuit->stations;
+      logn5("Circuit " + to_string(circuit->remorque->id) +
+            " whith size " + to_string(stations->size()));
       if (station_id < stations->size()) {
         if (stations->size() == 1) { 
           break;
@@ -127,29 +129,42 @@ void AnnealingSolver::get_neighbour(Solution* sol, Solution* old_sol) {
 
   //// NORMAL INSERT
   // Chosing a cuircuit where we will insert_best the solution to.
-  int position_id = rand() % (inst->nb_remorques+ inst->nb_stations);
+  int position_id = rand() % (inst->nb_remorques + inst->nb_stations -1);
   logn4("We selected the position number : " + to_string(position_id));
 
+  bool inserted = false;
   for (Circuit* circuit : *(sol->circuits)) {
     list<Station*>* stations =  circuit->stations;
+    logn5("Circuit " + to_string(circuit->remorque->id) +
+          " whith size " + to_string(stations->size()));
     if (position_id < stations->size()) {
 
       // Finding position
       std::list<Station*>::iterator it = stations->begin();
       std::advance(it, position_id);
 
+      logn5("Adding station at position"+ to_string(position_id) +
+       " of remorque : " + to_string(circuit->remorque->id));
+
       // Removing station from circuit
       stations->insert(it,station);
+      inserted = true;
       break;
       
     }
     else if (position_id == stations->size()) {
+      logn5("Adding station at last position of remorque : " + to_string(circuit->remorque->id));
       stations->push_back(station);
+      inserted = true;
+      break;
     }
     else 
       position_id -= stations->size() + 1;
   }
 
+  if (inserted == false) {
+    exit(1);
+  }
   // Update and return
   sol->update();
   return;
