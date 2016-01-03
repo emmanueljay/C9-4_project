@@ -85,26 +85,35 @@ void AnnealingSolver::get_neighbour(Solution* sol, Solution* old_sol) {
 
   // Chosing a station randomly, to be removed.
   Station* station;
-  int station_id = rand() % inst->nb_stations;
-  logn4("We selected the station at position : " + to_string(station_id));
 
-  for (Circuit* circuit : *(sol->circuits)) {
-    list<Station*>* stations =  circuit->stations;
-    if (station_id < stations->size()) {
-      // Finding station
-      std::list<Station*>::iterator it = stations->begin();
-      std::advance(it, station_id);
-      station = *(it);
+  bool found = false;
+  while(!found) {
+    int station_id = rand() % inst->nb_stations;
+    logn4("We selected the station at position : " + to_string(station_id));
 
-      // Removing station from circuit
-      stations->erase(it);
+    for (Circuit* circuit : *(sol->circuits)) {
+      list<Station*>* stations =  circuit->stations;
+      if (station_id < stations->size()) {
+        if (stations->size() == 1) { 
+          break;
+        }
+        else {
+          // Finding station
+          std::list<Station*>::iterator it = stations->begin();
+          std::advance(it, station_id);
+          station = *(it);
 
-      break;
+          // Removing station from circuit
+          stations->erase(it);
+
+          found = true;
+          break;
+        }
+      }
+      else 
+        station_id -= stations->size();
     }
-    else 
-      station_id -= stations->size();
   }
-
   // We remove the station from the circuit
 
   // Chosing a cuircuit where we will insert_best the solution to.
