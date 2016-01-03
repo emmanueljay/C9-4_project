@@ -116,13 +116,41 @@ void AnnealingSolver::get_neighbour(Solution* sol, Solution* old_sol) {
   }
   // We remove the station from the circuit
 
+  // //// INSERT BEST
+  // // Chosing a cuircuit where we will insert_best the solution to.
+  // int remorque_id = rand() % inst->nb_remorques;
+  // logn4("We selected the remorque with id : " + to_string(remorque_id));
+
+  // Circuit* circuit = sol->circuits->at(remorque_id);
+  // circuit->insert_best(station); 
+
+
+  //// NORMAL INSERT
   // Chosing a cuircuit where we will insert_best the solution to.
-  int remorque_id = rand() % inst->nb_remorques;
-  logn4("We selected the remorque with id : " + to_string(remorque_id));
+  int position_id = rand() % (inst->nb_remorques+ inst->nb_stations);
+  logn4("We selected the position number : " + to_string(position_id));
 
-  Circuit* circuit = sol->circuits->at(remorque_id);
-  circuit->insert_best(station); 
+  for (Circuit* circuit : *(sol->circuits)) {
+    list<Station*>* stations =  circuit->stations;
+    if (position_id < stations->size()) {
 
+      // Finding position
+      std::list<Station*>::iterator it = stations->begin();
+      std::advance(it, position_id);
+
+      // Removing station from circuit
+      stations->insert(it,station);
+      break;
+      
+    }
+    else if (position_id == stations->size()) {
+      stations->push_back(station);
+    }
+    else 
+      position_id -= stations->size() + 1;
+  }
+
+  // Update and return
   sol->update();
   return;
 }
@@ -178,7 +206,7 @@ bool AnnealingSolver::solve() {
   itermax =  itermax == -1 ? 1 : itermax;
 
   // Recuit informations
-  double temperature = 100;   // Initial temperature
+  double temperature = 10000;   // Initial temperature
   double energy_max = 0;  // Energy maximum of acceptation
   double energy;          // Energy
   int k = 0;              // Iteration
