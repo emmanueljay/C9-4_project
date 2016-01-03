@@ -93,9 +93,9 @@ int main(int argc, char *argv[]) {
     } else if (args->solver == 4) {;
         logn1("Solver 4 : glouton (GreedySolver)");
         GreedySolver* solver = new GreedySolver(inst);
-        int greedy_used = args->itermax; // Using Itermax to store information
-        if (greedy_used == 100) greedy_used = 2;
-        switch (greedy_used){
+        int greedy_variant = args->greedy_variant; // Using Itermax to store information
+        if (greedy_variant == 100) greedy_variant = 2;
+        switch (greedy_variant){
             case 0 : {cout << "Using solver 0" << endl; solver->solve(); break;}
             case 1 : {cout << "Using solver 1" << endl; solver->solve_insertbest(); break;}
             case 2 : {cout << "Using solver 2" << endl; solver->solve_use_other_truck(); break;}
