@@ -140,13 +140,23 @@ Pour ne pas trop perdre en temps de calcul lors de l'insertion des stations, cel
 \paragraph*{}
 Cette méthode permet d'obtenir des résultats très intéressant du point de vue de la minimisation du déséquilibre. Par ailleurs, le temps de calcul n'est pas trop long puisqu'on limite énormément l'appel à la fonction insertbest.
 
-%tableau comparaison
+\paragraph*{}
+Voici un récapitulatif des résultats comparant les trois différentes méthodes utilisées:
+\begin{center}
+\includegraphics{glouton.png}
+\end{center}
+
+
+
 
 \section{Recuit simulé}
 
 \paragraph*{}
 Dans cette étape, on implémente un recuit simulé de la forme suivante :
-%image algo
+
+\begin{center}
+\includegraphics{recuit.png}
+\end{center}
 
  %* Algorithme :
  %*  s := s0       // solution
@@ -162,13 +172,62 @@ Dans cette étape, on implémente un recuit simulé de la forme suivante :
  %*    k := k + 1
  %*  retourne s
 
-choix du voisinage
+\paragraph*{}
+Dans un premier temps il convient de discuter de la méthode de voisinage utilisée pour parcourir l'ensemble des solutions. Notre première idée a été de sélectionner aléatoirement une station dans l'une des remorques. On la place ensuite au mieux avec insertbest dans une remorque choisie aléatoirement (pas nécessairement différente puisque la station n'était pas forcément au meilleur endroit dans la remorque). Le problème de cette méthode est tout d'abord son coût en terme de temps de calcul (insertbest est relativement lourd lors de multiples appels) et également le fait que peu de liberté est laissée au solveur pour parcours l'espace des solutions. C'est pourquoi nous avons construis un deuxième voisinage plus large, on sélectionne aléatoirement une station que l'on repositionne aléatoirement dans un des circuits. Cette méthode est rapide et permet un parcours facile de l'espace des solutions. Les options permettent de choisir l'un ou l'autre des voisinages, le guide des options ayant été mis à jour.
 
-choix parametres (palier, tinit, lambda)
+\paragraph*{}
+La construction de la solution initiale se fait au moyen du glouton stupide qui permet l'obtention d'une solution rapide. Il faut évidemment faire attention au fait de ne pas sélectionner une station si c'est la seule de la remorque pour garder une solution admissible en partant de la solution admissible du glouton stupide (et ce pour les deux voisinages). Partir d'une solution a priori mauvaise n'est pas un problème, il suffit de paramétrer proprement le recuit simulé pour parcourir l'ensemble des solutions de manière satisfaisante avant de chercher à plonger dans un minimum.
 
-résultats
+\paragraph*{}
+Nous avons donc définit notre solution initiale ainsi que notre voisinage. On utilise un pas géométrique dans un premier temps pour mettre à jour la température. Il faut maintenant déterminer les différents paramètres. Voilà un premier jeu de paramètre que nous avons mis en place:
+\begin{itemize}
+\item Taux d'acceptation minimal: 0.01
+\item Nombre d'itérations: 100000 (obtention d'une solution avec 0 de déséquilibre plus rapide mais ce nombre d'itération permet de nettement améliorer le coût lié à la distance)
+\item Température initiale : 100 000 000 (parcours immense des solutions au départ)
+\item Coefficient de mise à jour de la température : 0.99 
+\item Taille d'un palier de température : 15 (permet de diminuer rapidement la température pour éviter de continuer à parcours un espace des solutions trop grand)
+\end{itemize}
+
+\paragraph*{}
+Le choix d'une grande température initiale permet un large parcours de l'espace des solutions pour commencer puis la mise à jour de la température sur de petits paliers permet de cibler rapidement de meilleurs solutions.
+
+\paragraph*{}
+Voici les premiers résultats que nous avons obtenus. On fixe le nombre d'itérations à 100000 donc le temps de calcul est délibéremment grand (le temps de calcul ne dépassant pas les 7 minutes pour v9). On s'attaque ici à un optimum global, sachant qu'un déséquilibre nul est trouvé bien avant le nombre d'itération maximal, on travaille énormément sur le coût des trajets en terme de distance.
+
+\begin{center}
+\begin{tabular}{|c|c|}
+ \hline 
+ Instance & Fonction objectif \\ \hline
+ v0 &  0-355\\ \hline
+ v1 &  0-335\\ \hline
+ v2 &  0-537\\ \hline
+ v3 &  0-718\\ \hline
+ v4 &  *\\ \hline
+ v5 &  *\\ \hline
+ v6 &  *\\ \hline
+ v7 &  0-5507\\ \hline
+ v8 &  0-10554\\ \hline
+ v9 &  1-16375\\ \hline
 
 
+\end{tabular}
+\end{center}
 
+On a le tracé de l'énergie en fonction de l'itération pour v9 avec deux paliers de température différents:
+\begin{center}
+
+\begin{figure}
+\caption{température de v9 avec un palier de 10}
+\includegraphics{v9-p10-it10000-temp.png}
+\end{figure}
+
+\begin{figure}
+\caption{energie v9 avec un palier de 10}
+\includegraphics{v9-p10-it10000-energy.png}
+\end{figure}
+
+\end{center}
+
+De plus amples résultats seront présentés pour vendredi.
 \end{document}
 
