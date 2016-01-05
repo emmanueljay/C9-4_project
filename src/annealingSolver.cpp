@@ -6,6 +6,9 @@
 
 #include <cmath>      /* exp */
 
+// basic file operations
+#include <iostream>
+#include <fstream>
 
 AnnealingSolver::AnnealingSolver(Instance* inst) : Solver::Solver(inst) {
     name = "AnnealingSolver";
@@ -227,6 +230,10 @@ bool AnnealingSolver::solve() {
   lambda =  lambda == 0.99 ? 0.99 : lambda;
   size_palier =  size_palier == 10 ? 10 : size_palier;
 
+  double taux_acceptation_min = 0.000001;
+  double taux_acceptation = 1;
+  double nb_accepted = 0;
+
   // Recuit informations
   double temperature = temp_init;   // Initial temperature (default)
   double energy_max = 0;  // Energy maximum of acceptation
@@ -241,12 +248,32 @@ bool AnnealingSolver::solve() {
   logn2("AnnealingSolver::Cost of the initial solution = "+sol->get_cost_string());
   logn2("AnnealingSolver::Energy of the initial solution = "+to_string(energy));
 
+  // Result File 
+  ofstream energy_file;
+  energy_file.open("energy.csv",ios::app);
+  energy_file << "\n"<< inst->name << ";" << time(NULL) << "\nEnergy;";
+
+  ofstream temp_file;
+  temp_file.open("temp.csv",ios::app);
+  temp_file << "\n"<< inst->name << ";" << time(NULL) << "\nTemperature;";
+
+  ofstream taux_acceptation_file;
+  taux_acceptation_file.open("taux_acceptation.csv",ios::app);
+  taux_acceptation_file << "\n"<< inst->name << ";" << time(NULL) << "\nTaux d'acceptation;";
+
   Solution* best_sol = new Solution(inst);
   best_sol->copy(sol);
 
   // RECUIT
-  while (k < itermax && energy > energy_max) {
+  while (k < itermax && 
+         energy > energy_max && 
+         taux_acceptation > taux_acceptation_min) 
+  {
     logn3("AnnealingSolver:: Iteration number "+to_string(k));
+
+    energy_file << energy << ";";    
+    temp_file << temperature << ";";    
+    taux_acceptation_file << taux_acceptation << ";";    
 
     // Updating Temperature
     if (k % size_palier == 0)
@@ -268,6 +295,8 @@ bool AnnealingSolver::solve() {
       else 
         cout << "+"; // Metropolis
 
+      nb_accepted++;
+
       sol->clear();
       sol->copy(neighbour);
 
@@ -281,13 +310,23 @@ bool AnnealingSolver::solve() {
 
       energy = energy_neighbour;
     }
-    else // neighbour rejected
+    else { // neighbour rejected 
       cout << ".";
+    }
 
     // Updating iteration
     ++k;
+    taux_acceptation = nb_accepted / k ;
   }
   cout << endl;
+
+  energy_file << "\n" << best_sol->get_cost_string() << "\n";
+  temp_file << "\n" << best_sol->get_cost_string() << "\n";
+  taux_acceptation_file << "\n" << best_sol->get_cost_string() << "\n";
+
+  energy_file.close();
+  temp_file.close();
+  taux_acceptation_file.close();
 
   this->found = true;
   this->solution = best_sol;
