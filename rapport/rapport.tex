@@ -114,7 +114,7 @@ Si la pénalisation est non linéaire, la méthode employée dépendra grandemen
 \section{Glouton intelligent}
 
 \paragraph*{}
-Dans cette étape, nous allons réaliser un glouton intelligent utilisant les deux briques de base (équilibrage et insertion). Pour cela nous avons comparé différentes méthodes plus ou moins intelligentes pour mieux comprendre l'impact d'appels trop fréquents à ces briques de base. Chacune de ces méthodes repose sur un tri préalable des stations en fonction de leur déficit. L'idée de notre algorithme glouton est de sélectionner successivement le premier et le dernier élément de la liste pour que les déséquilibres se compensent au mieux (cela ne permettra pas forcément d'obtenir un déséquilibre nul si les deux extrêmes ont des valeurs absolues trop différentes). L'objectif principal à ce stade est de minimiser le déséquilibre sans prendre en compte la pénalité liée au trajet puisque le déséquilibre est nettement plus pénalisée. Pour le moment, on se contente d'assigner la quasi-totalité des stations à la remorque de plus grande capacité (en s'assurant d'assigner au moins une station à chaque remorque à la fin lorsque les déséquilibres sont les plus faibles pour s'assurer du respect des capacités des remorques).
+Dans cette étape, nous allons réaliser un glouton intelligent utilisant les deux briques de base (équilibrage et insertion). Pour cela nous avons comparé différentes méthodes plus ou moins intelligentes pour mieux comprendre l'impact d'appels trop fréquents à ces briques de base. Chacune de ces méthodes repose sur un tri préalable des stations en fonction de leur déficit. L'idée de notre algorithme glouton est de sélectionner successivement le premier et le dernier élément de la liste pour que les déséquilibres se compensent au mieux (cela ne permettra pas forcément d'obtenir un déséquilibre nul si les deux extrêmes ont des valeurs absolues trop différentes). L'objectif principal à ce stade est de minimiser le déséquilibre sans prendre en compte la pénalité liée au trajet puisque le déséquilibre est nettement plus pénalisée. Pour le moment, on se contente d'assigner la quasi-totalité des stations à la remorque de plus grande capacité (en s'assurant d'assigner au moins une station à chaque remorque à la fin lorsque les déséquilibres sont les plus faibles pour s'assurer du respect des capacités des remorques). Les options ont été mises à jour pour pouvoir jongler au mieux entre les différentes techniques présentées ci-dessous.
 
 \subsection{Utilisation exclusive du pushback}
 
@@ -139,6 +139,34 @@ Pour ne pas trop perdre en temps de calcul lors de l'insertion des stations, cel
 
 \paragraph*{}
 Cette méthode permet d'obtenir des résultats très intéressant du point de vue de la minimisation du déséquilibre. Par ailleurs, le temps de calcul n'est pas trop long puisqu'on limite énormément l'appel à la fonction insertbest.
+
+%tableau comparaison
+
+\section{Recuit simulé}
+
+\paragraph*{}
+Dans cette étape, on implémente un recuit simulé de la forme suivante :
+%image algo
+
+ %* Algorithme :
+ %*  s := s0       // solution
+ %*  e := E(s)     // energie
+ %*  k := 0        // Iteration
+ %*  ta_min = 0.01 //taux d'acceptation minimum
+ %*  ta = 1        //taux d'acceptation
+ %*  tant que k < kmax et e > emax et ta > ta_min
+ %*    sn := voisin(s)
+ %*    en := E(sn)
+ %*    si en < e ou aléatoire() < P(en - e, temp(k/kmax)) alors
+ %*      s := sn; e := en
+ %*    k := k + 1
+ %*  retourne s
+
+choix du voisinage
+
+choix parametres (palier, tinit, lambda)
+
+résultats
 
 
 
