@@ -1,0 +1,14 @@
+Temps d'execution
+
+100 000 Iterations
+
+v0 10s
+v1 12s
+v2 19s
+v3 21s
+v4 42s
+v5 80s
+v6 156s
+v7 156s
+v8 171s
+v9 397s
